@@ -140,12 +140,44 @@ public class HillCipher {
     }
 
     public List<Integer> decrypt(List<Integer> cipherText, List<Integer> key) {
-        // Students should complete this part
-        return null;
+        int blockSize = findMatrixSize(key.size());
+        List<Integer> invKey = invertMatrix(key, blockSize);
+        List<Integer> plainText = new ArrayList<>();
+
+        for (int i = 0; i < cipherText.size(); i += blockSize) {
+            for (int row = 0; row < blockSize; row++) {
+                int sum = 0;
+                for (int col = 0; col < blockSize; col++)
+                    sum += invKey.get(row * blockSize + col) * cipherText.get(i + col);
+                plainText.add(mod26(sum));
+            }
+        }
+        return plainText;
     }
 
     public List<Integer> analyse3By3Key(List<Integer> plainText, List<Integer> cipherText) {
-        // Students should complete this part
-        throw new InvalidAnalysisException();
+        int blockCount = plainText.size() / 3;
+
+        for (int i = 0; i <= blockCount - 3; i++) {
+            for (int j = i + 1; j <= blockCount - 2; j++) {
+                for (int k = j + 1; k <= blockCount - 1; k++) {
+                    List<Integer> plainMat = new ArrayList<>();
+                    List<Integer> cipherMat = new ArrayList<>();
+
+                    for (int row = 0; row < 3; row++) {
+                        for (int col : new int[]{i, j, k}) {
+                            plainMat.add(plainText.get(col * 3 + row));
+                            cipherMat.add(cipherText.get(col * 3 + row));
+                        }
+                    }
+
+                    List<Integer> invPlain = invertMatrix(plainMat, 3);
+                    List<Integer> candKey = multiplyMatricesMod26(cipherMat, invPlain, 3);
+                    if (encrypt(plainText, candKey).equals(cipherText))
+                        return candKey;
+                }
+            }
+        }
+        return null;
     }
 }
