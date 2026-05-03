@@ -11,7 +11,10 @@ public class ElGamal {
     }
 
     public int decrypt(int c1, int c2, int x, int q) {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        long s = modPow(c1, x, q);
+        long sInverse = modPow(s, q - 2, q); // s^(q-2) mod q
+        long m = (c2 * sInverse) % q;
+        return (int) m;
     }
 
     public static long modPow(long base, long exp, long mod) {
